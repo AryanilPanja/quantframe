@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Backtesting Dashboard | Options & Futures Analytics</title>
+  <meta name="description" content="Interactive backtesting visualization dashboard for options and futures trading strategies — NIFTY & BANKNIFTY." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ── Header ─────────────────────────────── -->
+  <header class="app-header" id="app-header">
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
+            <polyline points="16 7 22 7 22 13"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <span class="brand-name">QuantFrame</span>
+          <span class="brand-sub">Backtesting Dashboard</span>
+        </div>
+      </div>
+
+      <nav class="header-tabs" id="header-tabs" role="tablist">
+        <button class="tab-btn active" data-tab="overview" role="tab" aria-selected="true" id="tab-overview">Overview</button>
+        <button class="tab-btn" data-tab="pnl" role="tab" aria-selected="false" id="tab-pnl">PnL Analysis</button>
+        <button class="tab-btn" data-tab="trades" role="tab" aria-selected="false" id="tab-trades">Trade Log</button>
+        <button class="tab-btn" data-tab="compare" role="tab" aria-selected="false" id="tab-compare">Compare</button>
+      </nav>
+
+      <div class="header-controls">
+        <div class="status-dot" id="status-dot" title="API Status"></div>
+        <select class="selector" id="global-symbol" aria-label="Select Symbol">
+          <option value="NIFTY">NIFTY</option>
+          <option value="BANKNIFTY">BANKNIFTY</option>
+        </select>
+        <select class="selector" id="global-strategy" aria-label="Select Strategy">
+          <option value="rolling_straddle">Rolling Straddle</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── Main Content ────────────────────────── -->
+  <main class="app-main" id="app-main">
+
+    <!-- ─── TAB: Overview ────────────── -->
+    <section class="tab-panel active" id="panel-overview" role="tabpanel" aria-labelledby="tab-overview">
+
+      <!-- KPI Cards -->
+      <div class="section-label">Key Performance Indicators</div>
+      <div class="kpi-grid" id="kpi-grid">
+        <div class="kpi-card" id="kpi-total-pnl">
+          <div class="kpi-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </div>
+          <div class="kpi-content">
+            <div class="kpi-label">Total PnL</div>
+            <div class="kpi-value" id="val-total-pnl">—</div>
+            <div class="kpi-sub" id="sub-total-pnl">points</div>
+          </div>
+        </div>
+
+        <div class="kpi-card" id="kpi-max-dd">
+          <div class="kpi-icon kpi-icon--red">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>
+          </div>
+          <div class="kpi-content">
+            <div class="kpi-label">Max Drawdown</div>
+            <div class="kpi-value kpi-value--red" id="val-max-dd">—</div>
+            <div class="kpi-sub" id="sub-max-dd">points</div>
+          </div>
+        </div>
+
+        <div class="kpi-card" id="kpi-sharpe">
+          <div class="kpi-icon kpi-icon--blue">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+          <div class="kpi-content">
+            <div class="kpi-label">Sharpe Ratio</div>
+            <div class="kpi-value kpi-value--blue" id="val-sharpe">—</div>
+            <div class="kpi-sub">annualized</div>
+          </div>
+        </div>
+
+        <div class="kpi-card" id="kpi-win-rate">
+          <div class="kpi-icon kpi-icon--purple">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="kpi-content">
+            <div class="kpi-label">Win Rate</div>
+            <div class="kpi-value kpi-value--purple" id="val-win-rate">—</div>
+            <div class="kpi-sub" id="sub-win-rate">daily</div>
+          </div>
+        </div>
+
+        <div class="kpi-card" id="kpi-trades">
+          <div class="kpi-icon kpi-icon--amber">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          </div>
+          <div class="kpi-content">
+            <div class="kpi-label">Total Trades</div>
+            <div class="kpi-value kpi-value--amber" id="val-trades">—</div>
+            <div class="kpi-sub">executions</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Overview Charts Grid -->
+      <div class="charts-grid">
+        <div class="chart-card chart-card--wide">
+          <div class="chart-header">
+            <div class="chart-title">Cumulative PnL</div>
+            <div class="chart-actions">
+              <button class="chip active" id="freq-1min" data-freq="1min">1m</button>
+              <button class="chip" id="freq-5min" data-freq="5min">5m</button>
+              <button class="chip" id="freq-15min" data-freq="15min">15m</button>
+            </div>
+          </div>
+          <div class="chart-body">
+            <canvas id="chart-pnl" role="img" aria-label="Cumulative PnL over time"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title">Daily PnL</div>
+          </div>
+          <div class="chart-body">
+            <canvas id="chart-daily" role="img" aria-label="Daily PnL bar chart"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title">Drawdown</div>
+          </div>
+          <div class="chart-body">
+            <canvas id="chart-drawdown" role="img" aria-label="Drawdown over time"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── TAB: PnL Analysis ─────────── -->
+    <section class="tab-panel" id="panel-pnl" role="tabpanel" aria-labelledby="tab-pnl">
+      <div class="section-label">PnL Deep Dive</div>
+      <div class="chart-card chart-card--full">
+        <div class="chart-header">
+          <div class="chart-title">Minute-by-Minute PnL</div>
+          <div class="chart-actions">
+            <span class="hint-text">Scroll to zoom · Drag to pan</span>
+            <button class="chip active" id="pnl-freq-1min" data-freq="1min">1m</button>
+            <button class="chip" id="pnl-freq-5min" data-freq="5min">5m</button>
+            <button class="chip" id="pnl-freq-15min" data-freq="15min">15m</button>
+            <button class="btn-reset" id="btn-reset-zoom">Reset Zoom</button>
+          </div>
+        </div>
+        <div class="chart-body chart-body--tall">
+          <canvas id="chart-pnl-detail" role="img" aria-label="Detailed PnL time-series with zoom"></canvas>
+        </div>
+      </div>
+
+      <div class="charts-row">
+        <div class="chart-card">
+          <div class="chart-header"><div class="chart-title">PnL Distribution</div></div>
+          <div class="chart-body">
+            <canvas id="chart-dist" role="img" aria-label="PnL distribution histogram"></canvas>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header"><div class="chart-title">Winning vs Losing Days</div></div>
+          <div class="chart-body chart-body--donut">
+            <canvas id="chart-donut" role="img" aria-label="Win/loss days donut chart"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── TAB: Trades ───────────────── -->
+    <section class="tab-panel" id="panel-trades" role="tabpanel" aria-labelledby="tab-trades">
+      <div class="section-label">Trade Log</div>
+      <div class="trades-toolbar">
+        <input class="search-input" type="text" id="trade-search" placeholder="Filter by symbol, action…" aria-label="Search trades" />
+        <select class="selector" id="trade-action-filter" aria-label="Filter by action">
+          <option value="">All Actions</option>
+          <option value="BUY">Buy</option>
+          <option value="SELL">Sell</option>
+        </select>
+        <div class="trade-count" id="trade-count">—</div>
+      </div>
+      <div class="table-wrapper">
+        <table class="trades-table" id="trades-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Time</th>
+              <th>Action</th>
+              <th>Symbol</th>
+              <th>Qty</th>
+              <th>Price</th>
+            </tr>
+          </thead>
+          <tbody id="trades-body">
+            <tr><td colspan="6" class="loading-row">Loading trades…</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination" id="pagination">
+        <button class="page-btn" id="btn-prev" aria-label="Previous page">‹ Prev</button>
+        <span class="page-info" id="page-info">Page 1</span>
+        <button class="page-btn" id="btn-next" aria-label="Next page">Next ›</button>
+      </div>
+    </section>
+
+    <!-- ─── TAB: Compare ──────────────── -->
+    <section class="tab-panel" id="panel-compare" role="tabpanel" aria-labelledby="tab-compare">
+      <div class="section-label">Strategy Comparison</div>
+      <div class="compare-table-wrap">
+        <table class="compare-table" id="compare-table">
+          <thead>
+            <tr>
+              <th>Strategy</th>
+              <th>Symbol</th>
+              <th>Total PnL</th>
+              <th>Max DD</th>
+              <th>Win Rate</th>
+              <th>Sharpe</th>
+              <th>Trades</th>
+            </tr>
+          </thead>
+          <tbody id="compare-body">
+            <tr><td colspan="7" class="loading-row">Loading comparison data…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="section-label" style="margin-top:2rem">Comparative PnL Overlay</div>
+      <div class="chart-card chart-card--full">
+        <div class="chart-header">
+          <div class="chart-title">All Strategies — Cumulative PnL</div>
+          <div class="chart-actions" id="compare-toggles"></div>
+        </div>
+        <div class="chart-body chart-body--tall">
+          <canvas id="chart-compare" role="img" aria-label="Multi-strategy PnL comparison chart"></canvas>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ── Loading Overlay ─────────────── -->
+  <div class="loading-overlay" id="loading-overlay" aria-live="polite" aria-label="Loading data">
+    <div class="spinner"></div>
+    <div class="loading-text" id="loading-text">Loading…</div>
+  </div>
+
+  <!-- ── Accessible Data Table (screen reader) ── -->
+  <div class="sr-only" aria-live="polite" id="sr-status"></div>
+
+  <!-- Chart.js + Zoom Plugin -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

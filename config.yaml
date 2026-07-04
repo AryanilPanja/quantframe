@@ -1,0 +1,23 @@
+# Options & Futures Backtesting Engine Configuration
+
+backtest:
+  start_date: "20221101"
+  end_date: "20221130"
+  base_dir: "./allData"
+  results_dir: "./results"
+  symbols:
+    - "NIFTY"
+    - "BANKNIFTY"
+
+strategies:
+  - name: "rolling_straddle"
+    class: "SimpleStraddleStrategy"
+    enabled: true
+    parameters:
+      qty: 1
+
+  - name: "buy_hold_futures"
+    class: "BuyAndHoldFuturesStrategy"
+    enabled: true
+    parameters:
+      qty: 1

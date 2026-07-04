@@ -1,0 +1,29 @@
+# Python bytecode & cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Virtual Environments
+.venv/
+venv/
+env/
+ENV/
+
+# Large Datasets (contain raw tick files)
+allData/
+
+# Generated Backtest Results & Cache
+results/
+*.parquet
+.tmp.*
+.cache/
+
+# IDE and Editor Files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+trash/

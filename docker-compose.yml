@@ -1,0 +1,14 @@
+services:
+  backtester:
+    build: .
+    container_name: quantframe-backtester
+    ports:
+      - "5000:5000"
+    volumes:
+      # Mount historical data from host to avoid copying huge volumes into the image
+      - ./allData:/app/allData
+      # Preserve simulation results between container runs
+      - ./results:/app/results
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
